@@ -3,12 +3,13 @@ from django.contrib.auth import logout, authenticate, login as auth_login
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from .models import Task
+from .models import Task, Profile
 
 def register(request):
     if request.method=="POST":
         username = request.POST.get('uname')
         password = request.POST.get('pwd')
+        image = request.FILES.get('image')
 
         if User.objects.filter(username=username).exists():
             messages.error(request, f"Username '{username}' already exists.")
@@ -19,6 +20,9 @@ def register(request):
             username=username,
             password=password
         )
+        
+        # Create the user profile with the uploaded image (if any)
+        Profile.objects.create(user=user, image=image)
         
         messages.success(request, "Registration successful! You can now log in.")
         return redirect('login')
@@ -70,3 +74,18 @@ def complete_task(request, id):
     task.completed = not task.completed
     task.save()
     return redirect('dashboard')
+
+@login_required(login_url='login')
+def update_profile(request):
+    if request.method == "POST":
+        image = request.FILES.get('image')
+        if image:
+            profile, created = Profile.objects.get_or_create(user=request.user)
+            profile.image = image
+            profile.save()
+            messages.success(request, "Profile photo updated successfully!")
+            return redirect('dashboard')
+        else:
+            messages.error(request, "Please choose an image to upload.")
+            
+    return render(request, 'update_profile.html')

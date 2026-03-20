@@ -34,16 +34,19 @@
             flex-direction: column;
         }
         .register-container input[type="text"],
-        .register-container input[type="password"] {
+        .register-container input[type="password"],
+        .register-container input[type="file"] {
             padding: 12px;
             margin-bottom: 16px;
             border: 1px solid #d1d5db;
             border-radius: 4px;
             font-size: 16px;
             transition: border-color 0.3s ease;
+            background-color: #ffffff;
         }
         .register-container input[type="text"]:focus,
-        .register-container input[type="password"]:focus {
+        .register-container input[type="password"]:focus,
+        .register-container input[type="file"]:focus {
             border-color: #3b82f6;
             outline: none;
         }
@@ -106,10 +109,11 @@
                 </div>
             {% endfor %}
         {% endif %}
-        <form action="" method="post">
+        <form action="" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="text" name="uname" placeholder="Username" required>
             <input type="password" name="pwd" placeholder="Password" required>
+            <input type="file" name="image" accept="image/*" title="Profile Image" aria-label="Profile Image">
             <input type="submit" value="Register">
         </form>
         <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
