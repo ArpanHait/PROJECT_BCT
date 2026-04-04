@@ -264,6 +264,54 @@
         .heatmap-scroll-wrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .heatmap-scroll-wrapper::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
+        /* Responsive Mobile Styles */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                width: 95%; /* Responsive width replacing fixed approaches */
+                padding: 0 10px;
+                margin: 20px auto;
+            }
+            .welcome-banner {
+                padding: 20px;
+            }
+            .welcome-banner h1 {
+                font-size: 1.8em;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .stat-card {
+                padding: 15px;
+            }
+            .todo-section {
+                padding: 15px;
+            }
+            .todo-header, .heatmap-title {
+                font-size: 1.3em;
+            }
+            .todo-form {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .todo-input, .todo-priority, .todo-button {
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .todo-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 15px;
+            }
+            .todo-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            .heatmap-container {
+                padding: 15px;
+            }
+        }
+
         .heatmap-title {
             margin-top: 0;
             color: #1f2937;
