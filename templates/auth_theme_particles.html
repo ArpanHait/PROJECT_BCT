@@ -259,6 +259,49 @@ body {
         box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
     }
 }
+
+/* Password Visibility Toggle Wrapper */
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 16px;
+}
+.password-wrapper input {
+    width: 100%;
+    margin-bottom: 0 !important;
+    padding-right: 44px !important;
+    box-sizing: border-box;
+}
+.password-toggle-btn {
+    position: absolute;
+    right: 12px;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    cursor: pointer;
+    color: var(--text-secondary, #94a3b8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+    box-shadow: none !important;
+    transform: none !important;
+    z-index: 2;
+    outline: none;
+}
+.password-toggle-btn:hover {
+    color: var(--accent, #00ffff) !important;
+    transform: scale(1.1) !important;
+    box-shadow: none !important;
+}
+.password-toggle-btn svg {
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+}
 </style>
 
 <div id="tsparticles"></div>
@@ -267,6 +310,26 @@ body {
 </div>
 
 <script>
+// Password Visibility Toggle Function
+function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const eyeOpen = btn.querySelector('.eye-open');
+    const eyeClosed = btn.querySelector('.eye-closed');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (eyeOpen) eyeOpen.style.display = 'none';
+        if (eyeClosed) eyeClosed.style.display = 'block';
+        btn.setAttribute('title', 'Hide password');
+    } else {
+        input.type = 'password';
+        if (eyeOpen) eyeOpen.style.display = 'block';
+        if (eyeClosed) eyeClosed.style.display = 'none';
+        btn.setAttribute('title', 'Show password');
+    }
+}
+
 // Health check engine for the LED Pulse Indicator
 async function checkBackendHealth(targetUrl = '/api/health/') {
     const badge = document.getElementById('serverStatusBadge');
@@ -284,22 +347,17 @@ async function checkBackendHealth(targetUrl = '/api/health/') {
         const latency = Math.round(performance.now() - startTime);
 
         if (res.ok) {
-            const data = await res.json();
             badge.className = 'server-status-badge status-online';
-            if (data.database === 'connected') {
-                textEl.textContent = 'Backend & Neon DB Live';
-            } else {
-                textEl.textContent = 'Backend Live (DB Connecting)';
-            }
+            textEl.textContent = 'Active';
             if (pingEl) pingEl.textContent = `• ${latency}ms`;
         } else {
             badge.className = 'server-status-badge status-waking';
-            textEl.textContent = 'Backend Waking Up...';
+            textEl.textContent = 'Connecting...';
             if (pingEl) pingEl.textContent = '';
         }
     } catch (e) {
         badge.className = 'server-status-badge status-offline';
-        textEl.textContent = 'Backend Offline';
+        textEl.textContent = 'Offline';
         if (pingEl) pingEl.textContent = '';
     }
 }

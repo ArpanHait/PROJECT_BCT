@@ -75,6 +75,26 @@ function getAvatarUrl(url) {
 // Global initialization promise
 const configPromise = loadConfig();
 
+// Password Visibility Toggle Function
+function togglePasswordVisibility(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const eyeOpen = btn.querySelector('.eye-open');
+  const eyeClosed = btn.querySelector('.eye-closed');
+  
+  if (input.type === 'password') {
+    input.type = 'text';
+    if (eyeOpen) eyeOpen.style.display = 'none';
+    if (eyeClosed) eyeClosed.style.display = 'block';
+    btn.setAttribute('title', 'Hide password');
+  } else {
+    input.type = 'password';
+    if (eyeOpen) eyeOpen.style.display = 'block';
+    if (eyeClosed) eyeClosed.style.display = 'none';
+    btn.setAttribute('title', 'Show password');
+  }
+}
+
 // Health check engine for the Glowing Pulse LED Indicator
 async function checkBackendHealth() {
   const badge = document.getElementById('serverStatusBadge');
@@ -97,22 +117,17 @@ async function checkBackendHealth() {
     const latency = Math.round(performance.now() - startTime);
 
     if (res.ok) {
-      const data = await res.json();
       badge.className = 'server-status-badge status-online';
-      if (data.database === 'connected') {
-        textEl.textContent = 'Backend & Neon DB Live';
-      } else {
-        textEl.textContent = 'Backend Live (DB Connecting)';
-      }
+      textEl.textContent = 'Active';
       if (pingEl) pingEl.textContent = `• ${latency}ms`;
     } else {
       badge.className = 'server-status-badge status-waking';
-      textEl.textContent = 'Backend Waking Up...';
+      textEl.textContent = 'Connecting...';
       if (pingEl) pingEl.textContent = '';
     }
   } catch (e) {
     badge.className = 'server-status-badge status-offline';
-    textEl.textContent = 'Backend Offline';
+    textEl.textContent = 'Offline';
     if (pingEl) pingEl.textContent = '';
   }
 }

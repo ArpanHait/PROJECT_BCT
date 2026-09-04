@@ -1,25 +1,93 @@
-# Environment variables
+# ============================================
+# Environment Variables & Secrets
+# ============================================
 .env
+.env.*
+*.env
+credentials.json
+client_secret*.json
 
-# Django
+# ============================================
+# Databases (Local SQLite / Caches)
+# ============================================
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-shm
+*.sqlite3-wal
 db.sqlite3
-db.sqlite3-journal
-*.log
-media/
-static/
 
-# Python
+# ============================================
+# Python & Bytecode Caches
+# ============================================
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 *.pyo
 *.pyd
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Virtual environment
+# ============================================
+# Virtual Environments
+# ============================================
 venv/
 env/
+ENV/
+.venv/
+env.bak/
+venv.bak/
 
-# IDE / Editor specific
+# ============================================
+# Django Logs, Media & Collected Static
+# ============================================
+*.log
+local_settings.py
+# Ignore user uploads in media directory
+media/*
+!media/.gitkeep
+# Ignore collected static cache if using separate staticfiles/ directory
+staticfiles/
+
+# ============================================
+# IDE & Code Editor Files
+# ============================================
 .vscode/
 .idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
 
+# ============================================
+# OS Generated Files
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ============================================
+# Scratch / Developer Notes
+# ============================================
 commands.txt
+scratch/
