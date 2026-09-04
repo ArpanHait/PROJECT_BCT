@@ -352,10 +352,10 @@
 
             // Render current photo
             const placeholder = document.getElementById('photoPlaceholder');
+            const initial = (userObj.username || 'U')[0].toUpperCase();
             if (userObj.image_url) {
-                placeholder.innerHTML = `<img src="${getAvatarUrl(userObj.image_url)}" alt="Current Photo" class="current-photo">`;
+                placeholder.innerHTML = `<img src="${getAvatarUrl(userObj.image_url)}" alt="Current Photo" class="current-photo" onerror="this.outerHTML='<div class=\\'current-photo\\' style=\\'display: flex; justify-content: center; align-items: center; background: rgba(0, 255, 255, 0.1); color: #00ffff; font-size: 3rem; font-weight: bold; text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);\\'>${initial}</div>'">`;
             } else {
-                const initial = (userObj.username || 'U')[0].toUpperCase();
                 placeholder.innerHTML = `<div class="current-photo" style="display: flex; justify-content: center; align-items: center; background: rgba(0, 255, 255, 0.1); color: #00ffff; font-size: 3rem; font-weight: bold; text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);">${initial}</div>`;
             }
 

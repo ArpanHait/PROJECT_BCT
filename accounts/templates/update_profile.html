@@ -129,7 +129,10 @@
         <h2>Update Profile Photo</h2>
         
         {% if user.profile.image %}
-            <img src="{{ user.profile.image.url }}" alt="Current Photo" class="current-photo">
+            <img src="{{ user.profile.image.url }}" alt="Current Photo" class="current-photo" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+            <div class="current-photo" style="display: none; justify-content: center; align-items: center; background: rgba(0, 255, 255, 0.1); color: #00ffff; font-size: 3rem; font-weight: bold; text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);">
+                {{ user.username|make_list|first|upper }}
+            </div>
         {% else %}
             <div class="current-photo" style="display: flex; justify-content: center; align-items: center; background: rgba(0, 255, 255, 0.1); color: #00ffff; font-size: 3rem; font-weight: bold; text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);">
                 {{ user.username|make_list|first|upper }}
