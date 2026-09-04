@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login - TO_DO</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
@@ -12,12 +12,15 @@
             text-size-adjust: 100%;
             margin: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
             
             /* Aesthetic Mesh Grid Background */
-            background-color: #0b0f19; /* Deep space dark */
+            background-color: #0b0f19;
             background-image: 
                 linear-gradient(rgba(0, 255, 255, 0.08) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 255, 255, 0.08) 1px, transparent 1px);
@@ -25,7 +28,6 @@
             background-position: center;
             position: relative;
         }
-        /* Removed to let auth_theme handle dynamic backgrounds */
 
         .login-container {
             background-color: rgba(20, 25, 40, 0.85);
@@ -129,6 +131,16 @@
 </head>
 <body>
     {% include 'auth_theme_particles.html' %}
+    
+    <!-- Top-Middle Pulse LED Backend Status -->
+    <div class="server-status-wrapper">
+        <div id="serverStatusBadge" class="server-status-badge status-checking" title="Live status of your backend server & database">
+            <span class="pulse-dot"></span>
+            <span id="serverStatusText" class="status-text">Connecting to Server...</span>
+            <span id="serverPingTime" class="ping-text"></span>
+        </div>
+    </div>
+
     <div class="login-container themed-container">
         <h2>Welcome Back</h2>
         {% if messages %}

@@ -1,4 +1,4 @@
-<!-- Day/Night Mode & Connected Particles Module -->
+<!-- Day/Night Mode & Connected Particles Module with Server Health Pulse LED -->
 <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
 
 <style>
@@ -103,7 +103,7 @@ body {
     width: 100%;
     height: 100%;
     z-index: -1;
-    pointer-events: none; /* Mouse clicks pass through to standard body interactivity */
+    pointer-events: none;
 }
 
 /* Floating Day/Night switch */
@@ -131,6 +131,134 @@ body {
 #theme-toggle-btn:hover {
     transform: scale(1.1);
 }
+
+/* Server Health Pulse LED Badge */
+.server-status-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 16px;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    z-index: 10;
+}
+
+.server-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 16px;
+    border-radius: 9999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
+    user-select: none;
+}
+
+.pulse-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* Online State (Green) */
+.server-status-badge.status-online {
+    background: rgba(16, 185, 129, 0.14);
+    border: 1px solid rgba(16, 185, 129, 0.45);
+    color: #10b981;
+}
+.server-status-badge.status-online .pulse-dot {
+    background-color: #10b981;
+    box-shadow: 0 0 10px #10b981, 0 0 18px #10b981;
+    animation: pulse-green 2s infinite ease-in-out;
+}
+
+/* Checking / Waking Up State (Amber / Yellow) */
+.server-status-badge.status-checking,
+.server-status-badge.status-waking {
+    background: rgba(245, 158, 11, 0.14);
+    border: 1px solid rgba(245, 158, 11, 0.45);
+    color: #f59e0b;
+}
+.server-status-badge.status-checking .pulse-dot,
+.server-status-badge.status-waking .pulse-dot {
+    background-color: #f59e0b;
+    box-shadow: 0 0 10px #f59e0b, 0 0 18px #f59e0b;
+    animation: pulse-amber 1.5s infinite ease-in-out;
+}
+
+/* Offline State (Red) */
+.server-status-badge.status-offline {
+    background: rgba(239, 68, 68, 0.14);
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    color: #ef4444;
+}
+.server-status-badge.status-offline .pulse-dot {
+    background-color: #ef4444;
+    box-shadow: 0 0 10px #ef4444, 0 0 18px #ef4444;
+    animation: pulse-red 1.5s infinite ease-in-out;
+}
+
+.ping-text {
+    font-size: 0.74rem;
+    opacity: 0.8;
+    margin-left: 2px;
+}
+
+/* Pulse Keyframe Animations */
+@keyframes pulse-green {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+@keyframes pulse-amber {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+    }
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+    }
+}
+
+@keyframes pulse-red {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
 </style>
 
 <div id="tsparticles"></div>
@@ -139,6 +267,43 @@ body {
 </div>
 
 <script>
+// Health check engine for the LED Pulse Indicator
+async function checkBackendHealth(targetUrl = '/api/health/') {
+    const badge = document.getElementById('serverStatusBadge');
+    const textEl = document.getElementById('serverStatusText');
+    const pingEl = document.getElementById('serverPingTime');
+    if (!badge || !textEl) return;
+
+    const startTime = performance.now();
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 7000);
+        
+        const res = await fetch(targetUrl, { signal: controller.signal, cache: 'no-store' });
+        clearTimeout(timeoutId);
+        const latency = Math.round(performance.now() - startTime);
+
+        if (res.ok) {
+            const data = await res.json();
+            badge.className = 'server-status-badge status-online';
+            if (data.database === 'connected') {
+                textEl.textContent = 'Backend & Neon DB Live';
+            } else {
+                textEl.textContent = 'Backend Live (DB Connecting)';
+            }
+            if (pingEl) pingEl.textContent = `• ${latency}ms`;
+        } else {
+            badge.className = 'server-status-badge status-waking';
+            textEl.textContent = 'Backend Waking Up...';
+            if (pingEl) pingEl.textContent = '';
+        }
+    } catch (e) {
+        badge.className = 'server-status-badge status-offline';
+        textEl.textContent = 'Backend Offline';
+        if (pingEl) pingEl.textContent = '';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const body = document.body;
     const toggleBtn = document.getElementById('theme-toggle-btn');
@@ -161,8 +326,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 opacity: { value: 0.5 }
             },
             interactivity: {
-                // To let tsparticles receive mouse coords when pointer-events: none is on the wrapper,
-                // tsparticles automatically hooks window events.
                 events: {
                     onHover: { enable: true, mode: "grab" },
                     onClick: { enable: true, mode: "push" }
@@ -196,49 +359,41 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTheme(current === 'light' ? 'dark' : 'light');
     });
 
+    // Check backend health immediately and every 15s
+    checkBackendHealth();
+    setInterval(() => checkBackendHealth(), 15000);
+
     // --- Interactive Node Limiting & Decay Engine ---
     let clickTimes = [];
     const BASE_PARTICLES = 50;
 
     window.addEventListener('click', (e) => {
-        // Find the active particles instance safely
         const container = window.tsParticles ? window.tsParticles.domItem(0) : null;
         if (!container) return;
         
         let now = Date.now();
-        // Clear memory of clicks older than 1 second
         clickTimes = clickTimes.filter(t => now - t < 1000);
         
-        // Ensure clicking the theme toggle doesn't trigger ghost logic
         if(e.target.closest('#theme-toggle-btn')) return;
 
-        // "in 1 second the user can click only 3 times"
         if (clickTimes.length >= 3) {
-            // RATE LIMIT REACHED: tsParticles natively renders the 4 nodes, 
-            // so we counteract it in a nearly instantaneous microtask 
-            // to physically prevent Canvas array inflation and crashing!
             setTimeout(() => {
                 if(container.particles && container.particles.count > BASE_PARTICLES) {
                     container.particles.removeQuantity(4);
                 }
             }, 10);
         } else {
-            // Valid Click
             clickTimes.push(now);
-            
-            // "Notes will disappeared after few seconds"
-            // Schedule the explicit removal of this click's network geometry 
             setTimeout(() => {
                 if(container.particles && container.particles.count > BASE_PARTICLES) {
                     container.particles.removeQuantity(4);
                 }
             }, 3500);
         }
-    }, true); // Capture phase ensures we always track raw clicks first
+    }, true);
     
-    // --- Smooth Page Transitions (Matches Navbar) ---
+    // --- Smooth Page Transitions ---
     const links = document.querySelectorAll('a');
-    
     links.forEach(link => {
         link.addEventListener('click', function(e) {
             const isSamePage = this.pathname === window.location.pathname;
@@ -254,7 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const targetUrl = this.href;
                 
                 document.body.style.animation = "fadeOut 0.35s ease-out forwards";
-                
                 setTimeout(() => {
                     window.location.href = targetUrl;
                 }, 300);
@@ -262,7 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Form Submissions (Login, Register, Upload)
+    // Form Submissions
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
         form.addEventListener('submit', function(e) {
@@ -280,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('pageshow', function(event) {
         if (event.persisted) {
             document.body.style.animation = "none";
-            void document.body.offsetWidth; // Trigger reflow
+            void document.body.offsetWidth;
             document.body.style.animation = "fadeIn 0.4s ease-out forwards";
         }
     });

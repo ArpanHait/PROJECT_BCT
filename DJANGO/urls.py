@@ -19,8 +19,12 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from accounts.api_views import health_check_view
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('health/', health_check_view, name='health_check'),
+    path('api/health/', health_check_view, name='api_health_check'),
     path('api/', include('accounts.api_urls')),
     path('', include('home.urls')),
     path('', include('accounts.urls')),

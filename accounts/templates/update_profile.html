@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Profile</title>
+    <title>Update Profile - TO_DO</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
@@ -18,10 +18,13 @@
             background-size: 100% 100%, 40px 40px, 40px 40px;
             background-position: center, center, center;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
             color: #e2e8f0;
         }
         .update-container {
@@ -36,6 +39,8 @@
             max-width: 400px;
             box-sizing: border-box;
             text-align: center;
+            position: relative;
+            z-index: 1;
         }
         .update-container h2 {
             color: #00ffff;
@@ -62,26 +67,11 @@
         }
         .update-container input[type="file"]:focus {
             border-color: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
             outline: none;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
-            background-color: rgba(0, 0, 0, 0.5);
         }
-        .update-container input[type="file"]::-webkit-file-upload-button {
-            background-color: #1e293b;
-            color: #00ffff;
-            border: 1px solid rgba(0, 255, 255, 0.4);
-            border-radius: 4px;
-            padding: 8px 16px;
-            margin-right: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .update-container input[type="file"]::-webkit-file-upload-button:hover {
-            background-color: #0f172a;
-            box-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
-        }
-        .update-container button {
-            background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+        .update-container button[type="submit"] {
+            background: linear-gradient(135deg, #0ea5e9, #6366f1);
             color: white;
             padding: 12px;
             border: none;
@@ -90,13 +80,10 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            width: 100%;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+            margin-bottom: 12px;
         }
-        .update-container button:hover {
-            background: linear-gradient(135deg, #00c6f0 0%, #326bc0 100%);
-            box-shadow: 0 6px 20px rgba(0, 210, 255, 0.5);
+        .update-container button[type="submit"]:hover {
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
             transform: translateY(-2px);
         }
         .update-container a.cancel-btn {
@@ -126,8 +113,18 @@
         }
     </style>
 </head>
-<body class="light-mode">
+<body>
     {% include 'auth_theme_particles.html' %}
+    
+    <!-- Top-Middle Pulse LED Backend Status -->
+    <div class="server-status-wrapper">
+        <div id="serverStatusBadge" class="server-status-badge status-checking" title="Live status of your backend server & database">
+            <span class="pulse-dot"></span>
+            <span id="serverStatusText" class="status-text">Connecting to Server...</span>
+            <span id="serverPingTime" class="ping-text"></span>
+        </div>
+    </div>
+
     <div class="update-container themed-container">
         <h2>Update Profile Photo</h2>
         

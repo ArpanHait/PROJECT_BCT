@@ -1,3 +1,4 @@
+from django.db import connection
 from django.utils import timezone
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -7,21 +8,41 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework import status
+from django.db.models.functions import TruncDate
+from django.db.models import Case, Count, IntegerField, Value, When
 
 from .models import Task, Profile
 
 def get_user_data(user):
     image_url = ""
     try:
-        if user.profile and user.profile.image:
-            image_url = user.profile.image.url
-    except Profile.DoesNotExist:
-        pass
+        profile = getattr(user, 'profile', None)
+        if profile and profile.image:
+            image_url = profile.image.url
+    except (Profile.DoesNotExist, ValueError, AttributeError):
+        image_url = ""
     return {
         "id": user.id,
         "username": user.username,
         "image_url": image_url
     }
+
+@api_view(["GET", "HEAD"])
+@permission_classes([AllowAny])
+def health_check_view(request):
+    db_status = "connected"
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1;")
+    except Exception as e:
+        db_status = f"unhealthy: {str(e)}"
+    
+    return Response({
+        "status": "online",
+        "backend": "Django",
+        "database": db_status,
+        "timestamp": timezone.now().isoformat()
+    }, status=status.HTTP_200_OK)
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -31,7 +52,7 @@ def register_view(request):
     image = request.FILES.get("image")
 
     if not username or not password:
-        return Response({"error": "Username and password are required."}, status=status.HTTP_400_BAR_ERROR if hasattr(status, 'HTTP_400_BAR_ERROR') else status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Username and password are required."}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         user = User.objects.create_user(username=username, password=password)
@@ -94,9 +115,6 @@ def update_profile_view(request):
         "user": get_user_data(request.user)
     })
 
-from django.db.models.functions import TruncDate
-from django.db.models import Case, Count, IntegerField, Value, When
-
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def stats_view(request):
@@ -105,7 +123,6 @@ def stats_view(request):
     total_pending = tasks.filter(completed=False).count()
 
     # Aggregating task completions by day to render the Github-style Heatmap Calendar
-    # NOTE: This intentionally does NOT filter out 'is_deleted', natively preserving historical Heatmap data forever!
     completed_counts = (
         Task.objects.filter(user=request.user, completed=True, completed_at__isnull=False)
         .annotate(date=TruncDate('completed_at'))
@@ -124,12 +141,10 @@ def stats_view(request):
         "heatmap_data": heatmap_data
     })
 
-
 @api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
 def tasks_view(request):
     if request.method == "GET":
-        # Order by completed asc, and then by priority high/medium/low, then by created_at desc
         priority_order = Case(
             When(priority="High", then=Value(0)),
             When(priority="Medium", then=Value(1)),

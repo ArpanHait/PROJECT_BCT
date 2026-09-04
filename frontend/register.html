@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <title>Register - TO_DO</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
     <script src="app.js"></script>
@@ -12,20 +12,119 @@
             font-family: 'Inter', sans-serif !important;
             -webkit-text-size-adjust: 100%;
             text-size-adjust: 100%;
-            margin: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
             
             /* Aesthetic Mesh Grid Background */
-            background-color: #0b0f19; /* Deep space dark */
+            background-color: #0b0f19;
             background-image: 
                 linear-gradient(rgba(0, 255, 255, 0.08) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 255, 255, 0.08) 1px, transparent 1px);
             background-size: 30px 30px;
             background-position: center;
             position: relative;
+        }
+
+        /* Server Health Pulse LED Badge */
+        .server-status-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 16px;
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .server-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 7px 16px;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: default;
+            user-select: none;
+        }
+
+        .pulse-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .server-status-badge.status-online {
+            background: rgba(16, 185, 129, 0.14);
+            border: 1px solid rgba(16, 185, 129, 0.45);
+            color: #10b981;
+        }
+        .server-status-badge.status-online .pulse-dot {
+            background-color: #10b981;
+            box-shadow: 0 0 10px #10b981, 0 0 18px #10b981;
+            animation: pulse-green 2s infinite ease-in-out;
+        }
+
+        .server-status-badge.status-checking,
+        .server-status-badge.status-waking {
+            background: rgba(245, 158, 11, 0.14);
+            border: 1px solid rgba(245, 158, 11, 0.45);
+            color: #f59e0b;
+        }
+        .server-status-badge.status-checking .pulse-dot,
+        .server-status-badge.status-waking .pulse-dot {
+            background-color: #f59e0b;
+            box-shadow: 0 0 10px #f59e0b, 0 0 18px #f59e0b;
+            animation: pulse-amber 1.5s infinite ease-in-out;
+        }
+
+        .server-status-badge.status-offline {
+            background: rgba(239, 68, 68, 0.14);
+            border: 1px solid rgba(239, 68, 68, 0.45);
+            color: #ef4444;
+        }
+        .server-status-badge.status-offline .pulse-dot {
+            background-color: #ef4444;
+            box-shadow: 0 0 10px #ef4444, 0 0 18px #ef4444;
+            animation: pulse-red 1.5s infinite ease-in-out;
+        }
+
+        .ping-text {
+            font-size: 0.74rem;
+            opacity: 0.8;
+            margin-left: 2px;
+        }
+
+        @keyframes pulse-green {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        @keyframes pulse-amber {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        @keyframes pulse-red {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
         .register-container {
@@ -120,36 +219,24 @@
             text-align: center;
             font-size: 0.95rem;
         }
-        .alert-success {
-            color: #34d399;
-            background-color: rgba(52, 211, 153, 0.1);
-            border-color: rgba(52, 211, 153, 0.2);
-        }
         .alert-error {
             color: #fb7185;
             background-color: rgba(251, 113, 133, 0.1);
             border-color: rgba(251, 113, 133, 0.2);
         }
-    </style>
-</head>
-<body>
-    <!-- Theme & Connected Particles (Inlined from templates/auth_theme_particles.html) -->
-    <style>
+
+        /* Day/Night theme overrides */
         :root {
             --bg-main: #0b0f19;
             --grid-line: rgba(0, 255, 255, 0.08);
             --glow-center: rgba(255, 0, 255, 0.15);
-            
             --container-bg: rgba(20, 25, 40, 0.85);
             --container-border: rgba(0, 255, 255, 0.2);
             --container-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 255, 255, 0.1);
-            
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
-            
             --input-bg: rgba(0, 0, 0, 0.3);
             --input-border: rgba(255, 255, 255, 0.1);
-            
             --accent: #00ffff;
             --accent-glow: rgba(0, 255, 255, 0.3);
             --btn-grad-start: #0ea5e9;
@@ -160,34 +247,17 @@
             --bg-main: #f0f4f8;
             --grid-line: rgba(0, 0, 0, 0.04);
             --glow-center: rgba(0, 0, 255, 0.05);
-            
             --container-bg: rgba(255, 255, 255, 0.85);
             --container-border: rgba(0, 0, 0, 0.1);
             --container-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 0 20px rgba(0, 0, 0, 0.05);
-            
             --text-primary: #1e293b;
             --text-secondary: #475569;
-            
             --input-bg: rgba(255, 255, 255, 0.8);
             --input-border: rgba(0, 0, 0, 0.2);
-            
             --accent: #0284c7;
             --accent-glow: rgba(2, 132, 199, 0.3);
             --btn-grad-start: #3b82f6;
             --btn-grad-end: #8b5cf6;
-        }
-
-        body {
-            background-color: var(--bg-main);
-            background-image: 
-                radial-gradient(circle at center, var(--glow-center), transparent 60%),
-                linear-gradient(var(--grid-line) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-            background-size: 100% 100%, 30px 30px, 30px 30px;
-            background-position: center;
-            background-attachment: fixed;
-            color: var(--text-primary);
-            transition: background-color 0.4s ease, color 0.4s ease;
         }
 
         .themed-container {
@@ -255,7 +325,15 @@
         <button id="theme-toggle-btn" title="Toggle Day/Night Mode">🌙</button>
     </div>
 
-    <!-- Container -->
+    <!-- Top-Middle Pulse LED Backend Status -->
+    <div class="server-status-wrapper">
+        <div id="serverStatusBadge" class="server-status-badge status-checking" title="Live status of your backend server & database">
+            <span class="pulse-dot"></span>
+            <span id="serverStatusText" class="status-text">Connecting to Server...</span>
+            <span id="serverPingTime" class="ping-text"></span>
+        </div>
+    </div>
+
     <div class="register-container themed-container">
         <h2>Create an Account</h2>
         <div id="alertBox"></div>
@@ -304,7 +382,6 @@
                 setToken(data.token);
                 setUser(data.user);
                 
-                // Navigate with transition delay
                 document.body.style.animation = "fadeOut 0.35s ease-out forwards";
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
@@ -319,11 +396,10 @@
             }
         });
 
-        // Theme and Particles setup (identical to templates/auth_theme_particles.html)
+        // Theme and Particles setup
         document.addEventListener('DOMContentLoaded', () => {
             const body = document.body;
             const toggleBtn = document.getElementById('theme-toggle-btn');
-            
             const savedTheme = localStorage.getItem('theme') || 'light';
             
             const loadParticles = (theme) => {
